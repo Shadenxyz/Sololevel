@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enter Hunter Name</title>
+  <style>
+    body {
+      background: black;
+      color: cyan;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    input, button {
+      padding: 12px;
+      margin: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    input {
+      background: #222;
+      color: white;
+    }
+    button {
+      background: cyan;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Name Your Hunter</h1>
+  <input type="text" id="hunterName" placeholder="Enter Hunter Name" />
+  <button onclick="goToMain()">Enter the Dungeon</button>
+
+  <script>
+    function goToMain() {
+      const name = document.getElementById('hunterName').value;
+      if (name.trim()) {
+        localStorage.setItem("hunterName", name);
+        window.location.href = "main.html";
+      } else {
+        alert("Enter your hunter name.");
+      }
+    }
+  </script>
+</body>
+</html>

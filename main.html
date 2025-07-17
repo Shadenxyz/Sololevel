@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hunter Main Page</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    h1 {
+      color: cyan;
+    }
+    button:activate {
+        background-color:yellow
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome, Hunter <span id="hunterName"></span>!</h1>
+  <p style="color: cyan" >
+      Dive into the world of training,<br>
+      killing the <strong>DEMONS</strong><br>
+     Collecting mana stones and many more <br>
+     You have to become a</p> <p style="color:darkblue;"> <strong>SHADOW MONARCH</strong>
+  </p>
+  <style>button:activate {
+        background-color:yellow;
+    }
+    </style>
+  <form action="System1.html">
+  <button style="height:50px;width:120px;
+    border-radius:50px;
+    background-color:cyan;"><strong>Activate System</button></strong>
+    </form>
+
+  <script>
+    const name = localStorage.getItem("hunterName") || "Unknown";
+    document.getElementById("hunterName").textContent = name;
+  </script>
+</body>
+</html>

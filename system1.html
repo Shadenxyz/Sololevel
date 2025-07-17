@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exercise Tracker</title>
+  <style>
+    body {
+      background: #0f0f0f;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      color: limegreen;
+    }
+
+    .card {
+      background: #1c1c1c;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px #444;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    select, input {
+      background: #2c2c2c;
+      color: white;
+    }
+
+    button {
+      background: limegreen;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .timer {
+      font-size: 24px;
+      margin: 15px 0;
+    }
+
+    .done {
+      background: #444;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 8px;
+      color: lime;
+      display: none;
+    }
+
+    .history, .xp-box {
+      width: 100%;
+      max-width: 400px;
+      background: #1a1a1a;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .history h3, .xp-box h3 {
+      margin-top: 0;
+      color: cyan;
+    }
+
+    .history ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .history li {
+      border-bottom: 1px solid #333;
+      padding: 5px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+    <div align="center">
+  <h1>Solo Leveling <br>
+        system</h1>
+</div>
+  <div class="card">
+    <select id="exercise">
+      <option value="">Exercises</option>
+      <option>PUSH-UPS</option>
+      <option>SQUATS</option>
+      <option>BURPEES</option>
+      <option>1KM RUNNING</option>
+      <option>SIT-UPS</option>
+    </select>
+
+    <input type="text" id="customExercise" placeholder="Enter custom exercise" style="display:none;" />
+    <input type="number" id="sets" placeholder="Sets (e.g. 3)" />
+    <input type="number" id="reps" placeholder="Reps per set (e.g. 10)" />
+
+    <div class="timer" id="timer">00:00</div>
+    <button onclick="startTimer()">Start</button>
+    <button onclick="stopTimer()">Stop</button>
+    <button onclick="markDone()">Mark Complete</button>
+    <form action="inventory.html">
+      <button>Go to Inventory</button>
+    </form>
+    <div class="done" id="doneMsg">Exercise Completed! +5 XP</div>
+  </div>
+
+  <div class="xp-box">
+    <h3>Level: <span id="levelDisplay">1</span></h3>
+    <h3>Total XP: <span id="xpDisplay">0</span></h3>
+    <div style="background:#333; border-radius:10px; height: 12px; margin: 10px 0;">
+      <div id="xpProgress" style="background:limegreen; height: 100%; width: 0%; border-radius:10px;"></div>
+    </div>
+    <div id="giftBox" style="display:none; margin-top:10px; color: gold;"></div>
+  </div>
+
+  <div class="history">
+    <h3>History</h3>
+    <ul id="historyList"></ul>
+  </div>
+
+  <script>
+    const exerciseSelect = document.getElementById("exercise");
+    const customInput = document.getElementById("customExercise");
+    const xpDisplay = document.getElementById("xpDisplay");
+    const levelDisplay = document.getElementById("levelDisplay");
+    const historyList = document.getElementById("historyList");
+    const xpProgress = document.getElementById("xpProgress");
+    const giftBox = document.getElementById("giftBox");
+
+    let timerInterval, time = 0;
+    const gifts = ["Mystery Box", "Energy Drink", "Badge", "Reward Coin", "Treasure Chest"];
+
+    exerciseSelect.addEventListener("change", () => {
+      customInput.style.display = exerciseSelect.value === "Custom" ? "block" : "none";
+    });
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      time = 0;
+      timerInterval = setInterval(() => {
+        time++;
+        const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+        const seconds = String(time % 60).padStart(2, '0');
+        document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function markDone() {
+      stopTimer();
+      document.getElementById("doneMsg").style.display = "block";
+
+      let name = exerciseSelect.value;
+      if (name === "Custom") {
+        name = customInput.value.trim() || "Custom Exercise";
+      }
+
+      const sets = document.getElementById("sets").value || "-";
+      const reps = document.getElementById("reps").value || "-";
+      const timeStr = document.getElementById("timer").textContent;
+      const record = `${name} - ${sets} sets x ${reps} reps - Time: ${timeStr}`;
+
+      // Store daily history
+      const today = new Date().toISOString().split('T')[0];
+      const dailyHistory = JSON.parse(localStorage.getItem("dailyHistory") || "{}");
+      if (!dailyHistory[today]) dailyHistory[today] = [];
+      dailyHistory[today].unshift(record);
+      localStorage.setItem("dailyHistory", JSON.stringify(dailyHistory));
+
+      // XP and level
+      let xp = parseInt(localStorage.getItem("xp") || "0");
+      xp += 5;
+      localStorage.setItem("xp", xp);
+      updateXP();
+
+      renderHistory();
+    }
+
+    function updateXP() {
+      const xp = parseInt(localStorage.getItem("xp") || "0");
+      const xpPerLevel = 50;
+      const level = Math.floor(xp / xpPerLevel) + 1;
+      const progressPercent = (xp % xpPerLevel) / xpPerLevel * 100;
+
+      xpDisplay.textContent = xp;
+      levelDisplay.textContent = level;
+      xpProgress.style.width = `${progressPercent}%`;
+
+      const lastLevel = parseInt(localStorage.getItem("lastLevel") || "1");
+      if (level > lastLevel) {
+        const gift = gifts[Math.floor(Math.random() * gifts.length)];
+        giftBox.textContent = `Level Up! You received: ${gift}`;
+        giftBox.style.display = "block";
+        addGift(gift);
+        localStorage.setItem("lastLevel", level);
+      }
+    }
+
+    function addGift(giftName) {
+      let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+      if (!inventory.includes(giftName)) {
+        inventory.push(giftName);
+        localStorage.setItem("inventory", JSON.stringify(inventory));
+      }
+    }
+
+    function renderHistory() {
+      const dailyHistory = JSON.parse(localStorage.getItem("dailyHistory") || "{}");
+      historyList.innerHTML = "";
+
+      for (const date in dailyHistory) {
+        const dayRecords = dailyHistory[date];
+        const dayBlock = document.createElement("li");
+        dayBlock.innerHTML = `<strong>${date}</strong><ul>${dayRecords.map(r => `<li>${r}</li>`).join('')}</ul>`;
+        historyList.appendChild(dayBlock);
+      }
+    }
+
+    // Initial load
+    renderHistory();
+    updateXP();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventory</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00cc66;
+      margin-bottom: 25px;
+    }
+
+    #inventoryList {
+      list-style: none;
+      padding-left: 0;
+      border: 1px solid #00cc66;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    #inventoryList li {
+      padding: 10px 15px;
+      border-bottom: 1px solid #004d33;
+    }
+
+    #inventoryList li:last-child {
+      border-bottom: none;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input {
+      background: #222;
+      color: white;
+    }
+
+    button {
+      background: #00cc66;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00994d;
+    }
+  </style>
+</head>
+<body>
+  <h1>Inventory</h1>
+
+  <ul id="inventoryList"></ul>
+  <script>
+  const inventoryList = document.getElementById("inventoryList");
+  const newItemInput = document.getElementById("newItem");
+
+  // Load inventory from localStorage or start empty
+  let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+
+  function renderInventory() {
+    if(inventory.length === 0){
+      inventoryList.innerHTML = "<li><i>Inventory is empty</i></li>";
+      return;
+    }
+    inventoryList.innerHTML = inventory.map(item => `<li>${item}</li>`).join("");
+  }
+
+  function addItem() {
+    const item = newItemInput.value.trim();
+    if(item === "") {
+      alert("Enter an item name!");
+      return;
+    }
+    if(!inventory.includes(item)) {
+      inventory.push(item);
+      localStorage.setItem("inventory", JSON.stringify(inventory));
+      renderInventory();
+    } else {
+      alert("Item already in inventory!");
+    }
+    newItemInput.value = "";
+  }
+
+  // Expose addGift globally so other pages can call it
+  function addGift(giftName) {
+    if (!inventory.includes(giftName)) {
+      inventory.push(giftName);
+      localStorage.setItem("inventory", JSON.stringify(inventory));
+      renderInventory();
+      console.log(`Gift added: ${giftName}`);
+    } else {
+      console.log(`Gift already in inventory: ${giftName}`);
+    }
+  }
+
+  // Make addGift accessible from other scripts
+  window.addGift = addGift;
+
+  // Initial display
+  renderInventory();
+   </script>
+</body>
+</html>
